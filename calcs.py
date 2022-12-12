@@ -31,15 +31,17 @@ def core(x,y):
     alpha = 0
     acc = 0
     vars = np.zeros(5)
-    vars[0] = (6371 + 400) * 1000
+    vars[0] = (6371 + 10000) * 1000
     vars[3] = np.sqrt(mu / vars[0])
     t = 0
-    h = 100
+    h = 20
 
     k = np.zeros((5, 4))
 
     while t < 100*86400:
-        print(vars[0]/1000)
+
+
+        print(h)
         x.append(vars[0] * np.cos(vars[1])/1000)
         y.append(vars[0] * np.sin(vars[1])/1000)
         acc = 0
@@ -48,6 +50,8 @@ def core(x,y):
         k[:, 1] = diffs(vars + k[:, 0] / 2)*2
         k[:, 2] = diffs(vars + k[:, 1] / 2)*2
         k[:, 3] = diffs(vars + k[:, 2])
+
+
 
         k *= h/6
 

@@ -1,14 +1,6 @@
 import numpy as np
 
 
-
-
-
-
-
-
-
-
 def core(x,y):
     global mu
     global mass
@@ -19,7 +11,7 @@ def core(x,y):
 
     '''
     0 - radius
-    1 - angle
+    1 - time
     2 - radial speed
     3 - angular speed
     4 - mass
@@ -28,30 +20,27 @@ def core(x,y):
     mu = 398.6e12
     mass = 20000
     thrust = 100
-    alpha = 0
+    alpha = np.pi/2
     acc = 0
     vars = np.zeros(5)
-    vars[0] = (6371 + 10000) * 1000
+    vars[0] = (6371 + 400) * 1000
     vars[3] = np.sqrt(mu / vars[0])
-    t = 0
-    h = 20
+    angle = 0
+    h = 5*np.pi/180
 
     k = np.zeros((5, 4))
 
-    while t < 100*86400:
+    while vars[0] <= 42164000:
 
+        x.append(vars[0]/1000 * np.cos(angle))
+        y.append(vars[0]/1000 * np.sin(angle))
 
-        print(h)
-        x.append(vars[0] * np.cos(vars[1])/1000)
-        y.append(vars[0] * np.sin(vars[1])/1000)
-        acc = 0
-
+        #acc =  5.4*2 / 20_000
+        acc = 1*10 / 20_000
         k[:, 0] = diffs(vars)
         k[:, 1] = diffs(vars + k[:, 0] / 2)*2
         k[:, 2] = diffs(vars + k[:, 1] / 2)*2
         k[:, 3] = diffs(vars + k[:, 2])
-
-
 
         k *= h/6
 
@@ -59,26 +48,26 @@ def core(x,y):
 
         vars += dvars
 
-        if vars[0] > 42000000 or vars[0] < 0:
-            break
 
-        t += h
 
+        angle += h
+    print(vars[1]/86400)
     return x, y
 
 
 def diffs(args):
-
     r_ = args[0]
-    phi_ = args[1]
+    time_ = args[1]
     Vr_ = args[2]
     Vphi_ = args[3]
+
     mass_ = args[4]
-    dr_ = Vr_
-    dphi_ =  Vphi_/r_
-    dVr_ = (Vphi_ ** 2) / r_ - mu / pow(r_, 2) + np.sin(alpha) * acc
-    dVphi_ = -(Vr_*Vphi_)/r_+np.cos(alpha)*acc
-    res = np.array([dr_, dphi_, dVr_, dVphi_, mass_])
+    dr_ = Vr_*r_/Vphi_
+    dtime_ =  r_/Vphi_
+    dVr_ = Vphi_-mu/(r_*Vphi_)+np.cos(alpha)*acc*r_/Vphi_
+    dVphi_ = -Vr_+np.sin(alpha) * acc * r_/Vphi_
+    res = np.array([dr_, dtime_, dVr_, dVphi_, mass_])
+
     return res
 
 

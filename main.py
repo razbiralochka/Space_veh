@@ -16,3 +16,5 @@ plt.plot(x,y)
 plt.axis('equal')
 plt.grid()
 plt.show()
+
+

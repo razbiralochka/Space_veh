@@ -1,25 +1,26 @@
 import numpy as np
 
 class calcs_class():
-    def __init__(self, acc, radius):
+    def __init__(self, acc):
         self.vars = np.zeros(10)
         self.vars[0] = 1 #r
         self.vars[1] = 0 #phi
-        self.vars[2] = np.sqrt(1/self.vars[0]) + 0.2#Vphi
+        self.vars[2] = np.sqrt(1/self.vars[0])+1 #Vphi
         self.vars[3] = 0 #Vr
         self.vars[4] = 0 #m
+
+        self.vars[5] = -0.01  # Pr
+        self.vars[7] = -0.01  # pVr
+        self.vars[8] = -0.01  # pVphi
 
         self.vars[6] = 0  # Pphi
         self.vars[9] = -1  # Pm
 
-        self.vars[5] = -0.01 #Pr
-        self.vars[7] = -0.01 #pVr
-        self.vars[8] = -0.01 #pVphi
+
 
         self.r_k = 42164/(6371+200)
         self.acc = acc
-        self.r = list()
-        self.angle = list()
+
         self.err = 0
     def fit(self):
         a = 0.1
@@ -45,13 +46,12 @@ class calcs_class():
 
 
 
-    def rungekutta4(self, pf, pr):
+    def rungekutta4(self, foo, fee):
 
         args = np.array([elem for elem in self.vars])
 
         r = list()
         angle = list()
-
         t_list = list()
         vr_list = list()
         #print(pr, pf)
@@ -79,7 +79,7 @@ class calcs_class():
 
             k *= h/6
 
-            dvars = [sum(elem) for elem in k]
+            dvars = np.array([sum(elem) for elem in k])
 
             args += dvars
 
@@ -94,8 +94,6 @@ class calcs_class():
         return angle, r, t_list, vr_list
 
     def diffs(self, args):
-
-
         r = args[0]
         p = args[1]
         vp = args[2]
@@ -119,8 +117,8 @@ class calcs_class():
 
         dr = vr
         dp = vp/r
-        dVp = -(vr*vp)/r+acc
-        dVr = vp*vp/r-1/(r*r)
+        dVp = -(vr*vp)/r+0
+        dVr = (vp*vp)/r - 1/(r*r)
         dm = acc/6.8
 
         dPm = -acc*pvp/(1-m)**2

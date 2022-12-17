@@ -18,12 +18,15 @@ calcs = calcs_class(acc, r_0)
 
 
 
-p,r = calcs.rungekutta4(0,0)
+p,r,t,v = calcs.rungekutta4(0,0)
 
 
 plt.polar(p,r)
 plt.show()
 
+plt.plot(t,v)
+plt.grid()
+plt.show()
 
 
 

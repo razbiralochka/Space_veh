@@ -5,7 +5,7 @@ class calcs_class():
         self.vars = np.zeros(10)
         self.vars[0] = 1 #r
         self.vars[1] = 0 #phi
-        self.vars[2] = np.sqrt(1/self.vars[0]) #Vphi
+        self.vars[2] = np.sqrt(1/self.vars[0]) + 0.2#Vphi
         self.vars[3] = 0 #Vr
         self.vars[4] = 0 #m
 
@@ -51,7 +51,10 @@ class calcs_class():
 
         r = list()
         angle = list()
-        print(pr, pf)
+
+        t_list = list()
+        vr_list = list()
+        #print(pr, pf)
         time = 0
         k = np.zeros((10, 4))
 
@@ -62,7 +65,9 @@ class calcs_class():
 
             if time > 8000:
                 break
-            h = 0.1
+            h = 0.1/args[2]
+            t_list.append(time)
+            vr_list.append(args[3])
             r.append(args[0])
             angle.append(args[1])
 
@@ -72,7 +77,7 @@ class calcs_class():
             k[:, 3] = self.diffs(args + k[:, 2])
 
 
-            k *= h / 6
+            k *= h/6
 
             dvars = [sum(elem) for elem in k]
 
@@ -86,7 +91,7 @@ class calcs_class():
         print(time)
         err = np.sin(args[1])**2+args[2]
         self.err = err
-        return angle, r
+        return angle, r, t_list, vr_list
 
     def diffs(self, args):
 
@@ -97,7 +102,7 @@ class calcs_class():
         vr = args[3]
         m = args[4]
         pr = args[5]
-        pp = args[6]
+        pp = args[6]*0
         pvr = args[7]
         pvp = args[8]
         pm = args[9]
@@ -105,9 +110,9 @@ class calcs_class():
 
         flag = pm/6.8 + pvp/(1-m)
 
-        print(flag)
+        #print(flag)
 
-        acc = self.acc*(flag > -1)
+        acc = 0*self.acc#*(flag > -1)
 
 
 

@@ -1,9 +1,9 @@
 import numpy as np
 
 class calcs_class():
-    def __init__(self, acc, radius):
+    def __init__(self, acc):
         self.vars = np.zeros(6)
-        self.vars[0] = radius
+        self.vars[0] = 1
         self.vars[1] = 0
         self.vars[2] = 0
         self.vars[3] = 0
@@ -25,9 +25,9 @@ class calcs_class():
         k = np.zeros((6, 4))
 
         r_k = 42164 / (6371 + 200)
-        while args[0] < r_k:
+        while args[0] <= r_k:
 
-            h = 0.1 * args[0]
+            h = 0.1
 
             y.append(args[0])
             x.append(args[1])
@@ -47,7 +47,7 @@ class calcs_class():
 
         r0 =6571000
         mu = 398600.4415*(10**9)
-        time = args[1]*r0*np.sqrt(r0/mu)
+
         print(time)
         return x, y
 

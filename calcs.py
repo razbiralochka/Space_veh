@@ -6,9 +6,9 @@ class calcs_class():
         self.vars[0] = radius
         self.vars[1] = 0
         self.vars[2] = 0
-        self.vars[3] = 0
-        self.vars[4] = 0
-        self.vars[5] = 0
+        self.vars[3] = 1
+        self.vars[4] = 1
+        self.vars[5] = 1
         self.acc = acc
 
     def fit(self):
@@ -25,10 +25,11 @@ class calcs_class():
         k = np.zeros((6, 4))
 
         r_k = 42164 / (6371 + 200)
-        while args[0] < r_k:
+        #7099.125838682138
+        while time < 7100*1.1:
 
-            h = 0.1 * args[0]
 
+            h = 0.1*args[0]
             y.append(args[0])
             x.append(args[1])
 
@@ -45,14 +46,14 @@ class calcs_class():
 
             time += h
 
+
         r0 =6571000
         mu = 398600.4415*(10**9)
-        time = args[1]*r0*np.sqrt(r0/mu)
+
         print(time)
         return x, y
 
     def diffs(self, args):
-        acc = self.acc
 
         r_ = args[0]
         phi_ = args[1]
@@ -61,6 +62,12 @@ class calcs_class():
         pf_ = args[3]
         pr_ = args[4]
         pm_ = args[5]
+
+        flag = 2*pr_*pow(r_, 1.5)/(1-m_)**2 + pm_/6.4
+
+        acc = self.acc*(flag  > 0)
+
+        #acc = self.acc
 
         dr_ = 2*pow(r_,1.5)*acc/(1-m_)
         dphi_ = 1/pow(r_,1.5)

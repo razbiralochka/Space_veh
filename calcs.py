@@ -21,7 +21,7 @@ class calcs_class():
         y = list()
         angle = 0
         k = np.zeros((5, 4))
-        h = 1 * np.pi/180
+        h = 2 * np.pi/180
         while args[0] < self.rk:
 
             #h = 0.01/self.args[0]
@@ -45,7 +45,8 @@ class calcs_class():
         r0 =6571000
         mu = 398600.4415*(10**9)
         time = args[1]*r0*np.sqrt(r0/mu)
-        print(time/86400)
+        print(args[1],' ',time/86400)
+        print(args[4])
         return x, y
 
     def diffs(self, args):
@@ -59,8 +60,9 @@ class calcs_class():
         dr_ = Vr_ * r_ / Vphi_
         dtime_ = r_ / Vphi_
         dVr_ = Vphi_ - 1 / (r_ * Vphi_)
-        dVphi_ = -Vr_ + (r_ / Vphi_)*acc
-        res = np.array([dr_, dtime_, dVr_, dVphi_, mass_])
+        dVphi_ = -Vr_ + (r_ / Vphi_)*acc/(1-mass_)
+        dmass_ = (acc/6.4)*(r_/Vphi_)
+        res = np.array([dr_, dtime_, dVr_, dVphi_, dmass_])
 
         return res
 

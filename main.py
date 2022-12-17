@@ -1,11 +1,11 @@
-import numpy as np
 
 from calcs import calcs_class
 import matplotlib.pyplot as plt
 
-
+r0 = 6571000
+mu = 398600.4415 * (10 ** 9)
 r_0 = 1
-r_k = 42164/(6371+200)
+
 phi_0 = 0
 acc = 0.000081328
 
@@ -18,12 +18,12 @@ calcs = calcs_class(acc, r_0)
 
 
 
-x,y = calcs.rungekutta4()
+p,r = calcs.rungekutta4(0,0)
 
 
-plt.polar(x, y)
-
-plt.grid()
+plt.polar(p,r)
 plt.show()
+
+
 
 

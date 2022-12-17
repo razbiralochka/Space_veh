@@ -2,41 +2,73 @@ import numpy as np
 
 class calcs_class():
     def __init__(self, acc, radius):
-        self.vars = np.zeros(6)
-        self.vars[0] = radius
-        self.vars[1] = 0
-        self.vars[2] = 0
-        self.vars[3] = 1
-        self.vars[4] = 1
-        self.vars[5] = 1
+        self.vars = np.zeros(10)
+        self.vars[0] = 1 #r
+        self.vars[1] = 0 #phi
+        self.vars[2] = np.sqrt(1/self.vars[0]) #Vphi
+        self.vars[3] = 0 #Vr
+        self.vars[4] = 0 #m
+        self.vars[5] = 0.001 #Pr
+        self.vars[6] = 0.1 #Pphi
+        self.vars[7] = 0 #pVr
+        self.vars[8] = 0.5 #pVphi
+        self.vars[9] = -1 #Pm
+        self.r_k = 42164/(6371+200)
         self.acc = acc
-
+        self.r = list()
+        self.angle = list()
+        self.err = 0
     def fit(self):
-        pass
+        a = 0.1
+        b = 0.4
+        h = 0.00001
+        for i in range(100):
+            print(self.rungekutta4(a, b))
+            da = (self.rungekutta4(a+h, b)-self.rungekutta4(a-h, b))/2*h
+            db = (self.rungekutta4(a, b+h)-self.rungekutta4(a, b-h))/2*h
+
+            a = a - 10*da
+            b = b - 10*db
 
 
-    def rungekutta4(self):
+            print('iter: #',i+1, 'err', self.err)
+
+
+
+
+
+
+
+
+
+    def rungekutta4(self, pf, pr):
 
         args = np.array([elem for elem in self.vars])
-        print(self.vars)
-        x = list()
-        y = list()
+        args[3] = pf
+        args[4] = pr
+        args[5] = -1
+        r = list()
+        angle = list()
+        print(pr, pf)
         time = 0
-        k = np.zeros((6, 4))
+        k = np.zeros((10, 4))
 
-        r_k = 42164 / (6371 + 200)
+
         #7099.125838682138
-        while time < 7100*1.1:
+        while args[0] < self.r_k:
 
 
-            h = 0.1*args[0]
-            y.append(args[0])
-            x.append(args[1])
+            if time > 8000:
+                break
+            h = 0.1
+            r.append(args[0])
+            angle.append(args[1])
 
             k[:, 0] = self.diffs(args)
             k[:, 1] = self.diffs(args + k[:, 0] / 2) * 2
             k[:, 2] = self.diffs(args + k[:, 1] / 2) * 2
             k[:, 3] = self.diffs(args + k[:, 2])
+
 
             k *= h / 6
 
@@ -47,37 +79,50 @@ class calcs_class():
             time += h
 
 
-        r0 =6571000
-        mu = 398600.4415*(10**9)
+
 
         print(time)
-        return x, y
+        err = np.sin(args[1])**2+args[2]
+        self.err = err
+        return angle, r
 
     def diffs(self, args):
 
-        r_ = args[0]
-        phi_ = args[1]
-        m_ = args[2]
 
-        pf_ = args[3]
-        pr_ = args[4]
-        pm_ = args[5]
+        r = args[0]
+        p = args[1]
+        vp = args[2]
+        vr = args[3]
+        m = args[4]
+        pr = args[5]
+        pp = args[6]
+        pvr = args[7]
+        pvp = args[8]
+        pm = args[9]
 
-        flag = 2*pr_*pow(r_, 1.5)/(1-m_)**2 + pm_/6.4
 
-        acc = self.acc*(flag  > 0)
+        flag = pm/6.8 + pvp/(1-m)
+        print(flag)
+        acc = self.acc*(flag > 0)
 
-        #acc = self.acc
 
-        dr_ = 2*pow(r_,1.5)*acc/(1-m_)
-        dphi_ = 1/pow(r_,1.5)
-        dmass_ = acc/6.4
 
-        dpf_ = 0
-        dpr_ = 1.5*pf_/pow(r_, 2.5)-3*acc*pr_*np.sqrt(r_)/(1-m_)
-        dpm_ = -2*acc*pr_*pow(r_, 1.5)/(1-m_)**2
+        dr = vr
+        dp = vp/r
+        dVp = -(vr*vp)/r+acc
+        dVr = vp*vp/r-1/(r*r)
+        dm = acc/6.8
 
-        res = np.array([dr_, dphi_, dmass_, dpf_, dpr_, dpm_])
+        dPm = -acc*pvp/(1-m)**2
+        dPvp = (pvp*vr-2*pvr*vp-pp)/r
+        dPvr = pvp*vp/r-pr
+        dPr = pp*vp/(r*r)-pvp*vr*vp/(r*r)-pvp*(2/(r*r*r)-vp*vp/(r*r))
+
+
+
+
+
+        res = np.array([dr,dp,dVp,dVr,dm,dPr,0,dPvr,dPvp,dPm])
 
         return res
 

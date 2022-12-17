@@ -8,11 +8,14 @@ class calcs_class():
         self.vars[2] = np.sqrt(1/self.vars[0]) #Vphi
         self.vars[3] = 0 #Vr
         self.vars[4] = 0 #m
-        self.vars[5] = 0.001 #Pr
-        self.vars[6] = 0.1 #Pphi
-        self.vars[7] = 0 #pVr
-        self.vars[8] = 0.5 #pVphi
-        self.vars[9] = -1 #Pm
+
+        self.vars[6] = 0  # Pphi
+        self.vars[9] = -1  # Pm
+
+        self.vars[5] = -0.01 #Pr
+        self.vars[7] = -0.01 #pVr
+        self.vars[8] = -0.01 #pVphi
+
         self.r_k = 42164/(6371+200)
         self.acc = acc
         self.r = list()
@@ -22,6 +25,7 @@ class calcs_class():
         a = 0.1
         b = 0.4
         h = 0.00001
+        print('fit')
         for i in range(100):
             print(self.rungekutta4(a, b))
             da = (self.rungekutta4(a+h, b)-self.rungekutta4(a-h, b))/2*h
@@ -44,9 +48,7 @@ class calcs_class():
     def rungekutta4(self, pf, pr):
 
         args = np.array([elem for elem in self.vars])
-        args[3] = pf
-        args[4] = pr
-        args[5] = -1
+
         r = list()
         angle = list()
         print(pr, pf)
@@ -102,8 +104,11 @@ class calcs_class():
 
 
         flag = pm/6.8 + pvp/(1-m)
+
         print(flag)
-        acc = self.acc*(flag > 0)
+
+        acc = self.acc*(flag > -1)
+
 
 
 

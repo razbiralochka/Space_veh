@@ -7,26 +7,17 @@ mu = 398600.4415 * (10 ** 9)
 
 
 
-acc = 0.000081328
+acc = 0.0000812431
 
 
 
 calcs = calcs_class(acc)
 
 
+calcs.fit()
 
 
 
-
-p,r,t,v = calcs.rungekutta4(0,0)
-
-
-plt.polar(p,r)
-plt.show()
-
-plt.plot(t,v)
-plt.grid()
-plt.show()
 
 
 

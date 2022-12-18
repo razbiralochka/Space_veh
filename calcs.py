@@ -4,6 +4,7 @@ class calcs_class():
     def __init__(self, acc):
         self.r_k = 42164 / (6371 + 200)
         self.acc = acc
+
         self.mu = 398600.4415 * (10 ** 9)
 
         self.vars = np.zeros(10)
@@ -13,30 +14,33 @@ class calcs_class():
         self.vars[3] = 0 #Vr
         self.vars[4] = 0 #m
 
-        self.vars[5] = -0.000001  # Pr
-        self.vars[7] = 0  # pVr
-        self.vars[8] = 0.000001  # pVphi
+
 
         self.vars[6] = 0  # Pphi
-        self.vars[9] = -1  # Pm
+        self.vars[9] = 1 # Pm
 
 
 
 
         self.err = 0
     def fit(self):
-        a = 0.1
-        b = 0.4
-        h = 0.00001
+        a = 10000
+        b = 10000
+        c = 10000
+        h = 10
         print('fit')
-        for i in range(100):
-            print(self.rungekutta4(a, b))
-            da = (self.rungekutta4(a+h, b)-self.rungekutta4(a-h, b))/2*h
-            db = (self.rungekutta4(a, b+h)-self.rungekutta4(a, b-h))/2*h
+        for i in range(3):
+            res = self.rungekutta4(a, b, c)
+            da = (self.rungekutta4(a+h, b, c)-res)/h
+            db = (self.rungekutta4(a, b+h,c)-res)/h
+            dc = (self.rungekutta4(a, b, c+h) - res) / h
 
-            a = a - 10*da
-            b = b - 10*db
 
+            print(da)
+
+            a = a - 100 * 1
+            b = b - 100 * db
+            c = c - 100 * dc
 
             print('iter: #',i+1, 'err', self.err)
 
@@ -48,10 +52,12 @@ class calcs_class():
 
 
 
-    def rungekutta4(self, foo, fee):
+    def rungekutta4(self, a, b,c):
 
         args = np.array([elem for elem in self.vars])
-
+        args[5] = pow(10, -a)
+        args[7] = pow(10, -b)
+        args[8] = pow(10, -c)
         r = list()
         angle = list()
         t_list = list()
@@ -64,10 +70,10 @@ class calcs_class():
         #7099.125838682138
         while args[0] < self.r_k:
 
-            if time > 8000:
+            if time > 7450:
                 break
 
-            h = 0.1
+            h = 2*np.pi/100
             t_list.append(time)
             vr_list.append(args[3])
             r.append(args[0])
@@ -76,7 +82,7 @@ class calcs_class():
             k[:, 0] = self.diffs(args)
             k[:, 1] = self.diffs(args + k[:, 0] *h/ 2) * 2
             k[:, 2] = self.diffs(args + k[:, 1] *h/ 2) * 2
-            k[:, 3] = self.diffs(args + k[:, 2]*h)
+            k[:, 3] = self.diffs(args + k[:, 2]* h)
 
 
             k *= h/6
@@ -89,10 +95,11 @@ class calcs_class():
 
 
 
-
+        err = args[4]
+        self.err = err
         print(time)
 
-        return angle, r, t_list, vr_list
+        return err
 
     def diffs(self, args):
         r = args[0]
@@ -108,6 +115,7 @@ class calcs_class():
 
 
         flag = pm/6.8 + pvp/(1-m)
+
 
 
 
@@ -134,21 +142,3 @@ class calcs_class():
         res = np.array([dr,dp,dVp,dVr,dm,dPr,dpp,dPvr,dPvp,dPm])
 
         return res
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

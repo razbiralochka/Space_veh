@@ -26,11 +26,12 @@ class calcs_class():
         a = 1
         b = 1
         c = 1
-        h = 0.0001
+        h = 0.1
         g= 1
         print('fit')
+        err = 100
         for i in range(1000):
-            err = 100
+
             da = (self.rungekutta4(a + h, b, c) - self.rungekutta4(a - h, b, c)) / (2 * h)
             db = (self.rungekutta4(a, b + h, c) - self.rungekutta4(a, b - h, c)) / (2 * h)
             dc = (self.rungekutta4(a, b, c + h) - self.rungekutta4(a, b, c - h)) / (2 * h)

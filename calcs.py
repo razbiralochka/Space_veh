@@ -26,31 +26,31 @@ class calcs_class():
         a = 1
         b = 1
         c = 1
-        h = 0.1
-        g= 1
+        h = 0.01
+        g= 0.9
         print('fit')
-        err = 100
+        min_err = 100
         for i in range(1000):
 
             da = (self.rungekutta4(a + h, b, c) - self.rungekutta4(a - h, b, c)) / (2 * h)
             db = (self.rungekutta4(a, b + h, c) - self.rungekutta4(a, b - h, c)) / (2 * h)
             dc = (self.rungekutta4(a, b, c + h) - self.rungekutta4(a, b, c - h)) / (2 * h)
 
+            a1 = a - g * da
+            b1 = b - g * db
+            c1 = c - g * dc
 
-
-
-            a = a - g * da
-            b = b - g * db
-            c = c - g * dc
-
-            if self.err < err:
-                err = self.err
-
-            if self.err > err:
+            err = self.rungekutta4(a1, b1, c1)
+            if err < min_err:
+                min_err = err
+                a = a1
+                b = b1
+                c = c1
+            else:
                 h*=0.99
                 g*=0.5
 
-            print('iter: #',i+1, 'err', self.err)
+            print('iter: #',i+1, 'err', err)
             print('Pr: ',a ,'   Pvr: ',b,'   Pv_phi: ',c)
 
 
@@ -104,8 +104,8 @@ class calcs_class():
 
 
 
-        err = args[4]+(self.r_k-args[0])**2+args[3]**3+(np.sqrt(1/args[0])-args[2])**2
-        self.err = err
+        err = args[4]+(self.r_k-args[0])**2+args[2]**2+(np.sqrt(1/args[0])-args[3])**2
+
 
 
         return err

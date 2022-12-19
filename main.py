@@ -13,7 +13,6 @@ acc = 0.0000812431
 
 calcs = calcs_class(acc)
 
-
 calcs.fit()
 
 

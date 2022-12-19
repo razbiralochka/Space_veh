@@ -142,7 +142,6 @@ class calcs_class():
 
 
 
-
         res = np.array([dr, dp, dVr, dVp, dm, dPr, dPvr,dPvp,dPm])
 
         return res

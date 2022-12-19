@@ -23,11 +23,11 @@ class calcs_class():
 
         self.err = 0
     def fit(self):
-        a = 1
-        b = 1
-        c = 1
-        h = 0.01
-        g= 0.9
+        a = 11.888501890983918
+        b = 18.17357862377174
+        c = -8.171520262681508
+        h = 0.25
+        g= 100
         print('fit')
         min_err = 100
         for i in range(1000):
@@ -46,12 +46,13 @@ class calcs_class():
                 a = a1
                 b = b1
                 c = c1
+                print('iter: #', i + 1, 'err', err)
+                print('Pr: ', a, '   Pvr: ', b, '   Pv_phi: ', c)
             else:
-                h*=0.99
-                g*=0.5
 
-            print('iter: #',i+1, 'err', err)
-            print('Pr: ',a ,'   Pvr: ',b,'   Pv_phi: ',c)
+                g*=0.1
+                print('Step Division')
+
 
 
 

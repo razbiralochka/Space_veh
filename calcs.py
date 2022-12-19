@@ -8,7 +8,8 @@ class calcs_class():
 
         self.mu = 398600.4415 * (10 ** 9)
 
-        self.vars = np.zeros(9)
+        self.vars = np.zeros(9, dtype=np.float64)
+        self.vars*=0
         self.vars[0] = 1 #r
         self.vars[3] = 1 #Vphi
 
@@ -22,24 +23,29 @@ class calcs_class():
 
 
         self.err = 0
+
+
+
     def fit(self):
-        a = 11.888501890983918
-        b = 18.17357862377174
-        c = -8.171520262681508
-        h = 0.25
-        g= 100
+        a = 5
+        b = -5
+        c = 5
+        h = 1e-1
+        g = 0.01
         print('fit')
-        min_err = 100
+        min_err = 12
         for i in range(1000):
 
-            da = (self.rungekutta4(a + h, b, c) - self.rungekutta4(a - h, b, c)) / (2 * h)
-            db = (self.rungekutta4(a, b + h, c) - self.rungekutta4(a, b - h, c)) / (2 * h)
-            dc = (self.rungekutta4(a, b, c + h) - self.rungekutta4(a, b, c - h)) / (2 * h)
+            res = self.rungekutta4(a, b, c)
+
+            da = (self.rungekutta4(a + h, b, c) - res) / (2*h)
+            db = (self.rungekutta4(a, b + h, c) - res) / (2*h)
+            dc = (self.rungekutta4(a, b, c + h) - res) / (2*h)
 
             a1 = a - g * da
             b1 = b - g * db
             c1 = c - g * dc
-
+            print(da)
             err = self.rungekutta4(a1, b1, c1)
             if err < min_err:
                 min_err = err
@@ -49,21 +55,14 @@ class calcs_class():
                 print('iter: #', i + 1, 'err', err)
                 print('Pr: ', a, '   Pvr: ', b, '   Pv_phi: ', c)
             else:
-
+                h = err/100
                 g*=0.1
                 print('Step Division')
 
 
+    def rungekutta4(self, a, b, c):
 
-
-
-
-
-
-
-    def rungekutta4(self, a, b,c):
-
-        args = np.array([elem for elem in self.vars])
+        args = np.array([elem for elem in self.vars] , dtype=np.float64)
         args[5] = a
         args[6] = b
         args[7] = c
@@ -73,7 +72,7 @@ class calcs_class():
         vr_list = list()
 
         time = 0
-        k = np.zeros((9, 4))
+        k = np.zeros((9, 4), dtype=np.float64)
 
 
 
@@ -105,11 +104,12 @@ class calcs_class():
 
 
 
-        err = args[4]+(self.r_k-args[0])**2+args[2]**2+(np.sqrt(1/args[0])-args[3])**2
+        err = args[4] + (self.r_k-args[0])**2 #+ args[2]**2 + (np.sqrt(1/args[0])-args[3])**2
 
 
 
         return err
+
 
     def diffs(self, args):
         r_ = args[0]

@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy.optimize import minimize
 class calcs_class():
     def __init__(self, acc):
         self.r_k = 42164 / (6371 + 200)
@@ -23,17 +23,24 @@ class calcs_class():
 
         self.err = 0
     def fit(self):
-        a = 1
-        b = 1
-        c = 1
-        h = 0.0001
-        g= 1
+        a = 2.623581714078705
+        b = 12.108649205761758
+        c = 16.843360413636947
+        h = 1
+        g = 200
         print('fit')
-        for i in range(1000):
-            err = 100
-            da = (self.rungekutta4(a + h, b, c) - self.rungekutta4(a - h, b, c)) / (2 * h)
-            db = (self.rungekutta4(a, b + h, c) - self.rungekutta4(a, b - h, c)) / (2 * h)
-            dc = (self.rungekutta4(a, b, c + h) - self.rungekutta4(a, b, c - h)) / (2 * h)
+        min_err = 30
+        for i in range(100):
+
+            res = self.rungekutta4(a, b, c)
+
+            da = (self.rungekutta4(a + h, b, c) - res) / (h)
+            print('da: ',da)
+            db = (self.rungekutta4(a, b + h, c) - res) / (h)
+            print('db: ', db)
+            dc = (self.rungekutta4(a, b, c + h) - res) / (h)
+            print('dc: ', dc)
+
 
 
 
@@ -42,33 +49,21 @@ class calcs_class():
             b = b - g * db
             c = c - g * dc
 
-            if self.err < err:
-                err = self.err
+            err = self.rungekutta4(a, b, c)
 
-            if self.err > err:
-                h*=0.99
-                g*=0.5
 
-            print('iter: #',i+1, 'err', self.err)
-            print('Pr: ',a ,'   Pvr: ',b,'   Pv_phi: ',c)
+            print('iter: #', i + 1, 'err', err)
+            print('Pr: ', a, '   Pvr: ', b, '   Pv_phi: ', c)
 
 
 
-
-
-
-
-
-    def rungekutta4(self, a, b,c):
+    def rungekutta4(self, a, b, c):
 
         args = np.array([elem for elem in self.vars])
         args[5] = a
         args[6] = b
         args[7] = c
-        r = list()
-        angle = list()
-        t_list = list()
-        vr_list = list()
+
 
         time = 0
         k = np.zeros((9, 4))
@@ -76,15 +71,12 @@ class calcs_class():
 
 
         #7099.125838682138
-        while time < 8000:
+        while time < 10000:
 
 
 
             h = 2*np.pi/100
-            t_list.append(time)
-            vr_list.append(args[3])
-            r.append(args[0])
-            angle.append(args[1])
+
 
             k[:, 0] = self.diffs(args)
             k[:, 1] = self.diffs(args + k[:, 0] * h / 2) * 2
@@ -103,7 +95,7 @@ class calcs_class():
 
 
 
-        err = args[4]+(self.r_k-args[0])**2+args[3]**3+(np.sqrt(1/args[0])-args[2])**2
+        err = args[4]+(self.r_k-args[0])**2
         self.err = err
 
 

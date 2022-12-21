@@ -23,16 +23,14 @@ class calcs_class():
 
         self.err = 0
     def fit(self):
-        a = 1.8618584620447054
-        b = 1.1511417238472885
-        c = 0.8291738614041768
+        a = 1.8603184779897084
+        b = 1.1496964378988284
+        c = 0.8310724166226334
 
-        v1 = 0
-        v2 = 0
-        v3 = 0
+
 
         h = 1e-9
-        g = 1e-5
+        g = 5e-4
         print('fit')
         min_err = 30
         for i in range(10000):
@@ -44,16 +42,22 @@ class calcs_class():
             dc = (self.rungekutta4(a, b, c + h) - self.rungekutta4(a, b,c - h)) / (2*h)
             print('dc: ', dc)
 
-            v1 = 0.5 * v1 + g * da
-            v2 = 0.5 * v2 + g * db
-            v3 = 0.5 * v3 + g * dc
 
 
-            a = a - v1
-            b = b - v2
-            c = c - v3
+
+            a1 = a - g * da
+            b1 = b - g * db
+            c1 = c - g * dc
 
             err = self.rungekutta4(a, b, c)
+
+            if err < min_err:
+                min_err = err
+                a = a1
+                b = b1
+                c = c1
+            else:
+                g*=0.5
 
 
 

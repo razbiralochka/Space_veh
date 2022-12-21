@@ -12,8 +12,8 @@ class calcs_class():
         self.vars[0] = 1 #r
         self.vars[3] = 1 #Vphi
 
-
-
+        self.foo=1
+        self.fee = 0
 
 
         self.vars[8] = -1 # Pm
@@ -23,33 +23,38 @@ class calcs_class():
 
         self.err = 0
     def fit(self):
-        a = 2.623581714078705
-        b = 12.108649205761758
-        c = 16.843360413636947
-        h = 1
-        g = 200
+        a = 1.8618584620447054
+        b = 1.1511417238472885
+        c = 0.8291738614041768
+
+        v1 = 0
+        v2 = 0
+        v3 = 0
+
+        h = 1e-9
+        g = 1e-5
         print('fit')
         min_err = 30
-        for i in range(100):
+        for i in range(10000):
 
-            res = self.rungekutta4(a, b, c)
-
-            da = (self.rungekutta4(a + h, b, c) - res) / (h)
-            print('da: ',da)
-            db = (self.rungekutta4(a, b + h, c) - res) / (h)
+            da = (self.rungekutta4(a+h, b, c) - self.rungekutta4(a-h, b, c)) / (2*h)
+            print('da: ', da)
+            db = (self.rungekutta4(a, b + h , c) - self.rungekutta4(a, b- h , c)) / (2*h)
             print('db: ', db)
-            dc = (self.rungekutta4(a, b, c + h) - res) / (h)
+            dc = (self.rungekutta4(a, b, c + h) - self.rungekutta4(a, b,c - h)) / (2*h)
             print('dc: ', dc)
 
+            v1 = 0.5 * v1 + g * da
+            v2 = 0.5 * v2 + g * db
+            v3 = 0.5 * v3 + g * dc
 
 
-
-
-            a = a - g * da
-            b = b - g * db
-            c = c - g * dc
+            a = a - v1
+            b = b - v2
+            c = c - v3
 
             err = self.rungekutta4(a, b, c)
+
 
 
             print('iter: #', i + 1, 'err', err)
@@ -68,13 +73,20 @@ class calcs_class():
         time = 0
         k = np.zeros((9, 4))
 
-
-
+        r = list()
+        p = list()
+        tl = list()
+        ul = list()
+        u2 = list()
         #7099.125838682138
-        while time < 10000:
+        while time < 100:
 
 
-
+            r.append(args[0])
+            p.append(args[1])
+            tl.append(time)
+            ul.append(self.foo)
+            u2.append(self.fee)
             h = 2*np.pi/100
 
 
@@ -95,10 +107,11 @@ class calcs_class():
 
 
 
-        err = args[4]+(self.r_k-args[0])**2
+        err = (self.r_k-args[0])**2+(args[3]-1/np.sign(self.r_k))**2+args[2]**2+args[4]
         self.err = err
 
 
+        #return p,r,tl,ul,u2
         return err
 
     def diffs(self, args):
@@ -114,13 +127,24 @@ class calcs_class():
 
         flag = pm_/6.8 + pvp_/(1-m_)
 
+
+
+        self.foo = (flag > 0)
         acc = self.acc*(flag > 0)
+
+        biba = pvp_/np.sign(pvp_**2+pvr_**2)
+        boba = pvr_ / np.sign(pvp_ ** 2 + pvr_ ** 2)
+
+        self.fee=180*np.arccos(boba)/np.pi-90
 
         dr = vr_
         dp = vp_/r_
-        dVr = vp_**2 / r_ - 1 / r_**2
-        dVp = -(vr_*vp_)/r_+acc/(1-m_)
+        dVr = vp_**2 / r_ - 1 / r_**2 + boba*acc/(1-m_)
+        dVp = -(vr_*vp_)/r_+biba*acc/(1-m_)
         dm = acc/6.8
+
+
+
 
         dPm = -acc*pvp_/(1-m_)**2
         dPvp = -(2*pvr_*vp_)/r_ + (pvp_*vr_)/r_

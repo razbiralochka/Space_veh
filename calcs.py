@@ -1,5 +1,5 @@
 import numpy as np
-
+from scipy.optimize import minimize
 class calcs_class():
     def __init__(self, acc):
         self.r_k = 42164 / (6371 + 200)
@@ -8,13 +8,12 @@ class calcs_class():
 
         self.mu = 398600.4415 * (10 ** 9)
 
-        self.vars = np.zeros(9, dtype=np.float64)
-        self.vars*=0
+        self.vars = np.zeros(9)
         self.vars[0] = 1 #r
         self.vars[3] = 1 #Vphi
 
-
-
+        self.foo=1
+        self.fee = 0
 
 
         self.vars[8] = -1 # Pm
@@ -23,69 +22,77 @@ class calcs_class():
 
 
         self.err = 0
-
-
-
     def fit(self):
-        a = 5
-        b = -5
-        c = 5
-        h = 1e-1
-        g = 0.01
+        a = 1.8603184779897084
+        b = 1.1496964378988284
+        c = 0.8310724166226334
+
+
+
+        h = 1e-9
+        g = 5e-4
         print('fit')
-        min_err = 12
-        for i in range(1000):
+        min_err = 30
+        for i in range(10000):
 
-            res = self.rungekutta4(a, b, c)
+            da = (self.rungekutta4(a+h, b, c) - self.rungekutta4(a-h, b, c)) / (2*h)
+            print('da: ', da)
+            db = (self.rungekutta4(a, b + h , c) - self.rungekutta4(a, b- h , c)) / (2*h)
+            print('db: ', db)
+            dc = (self.rungekutta4(a, b, c + h) - self.rungekutta4(a, b,c - h)) / (2*h)
+            print('dc: ', dc)
 
-            da = (self.rungekutta4(a + h, b, c) - res) / (2*h)
-            db = (self.rungekutta4(a, b + h, c) - res) / (2*h)
-            dc = (self.rungekutta4(a, b, c + h) - res) / (2*h)
+
+
 
             a1 = a - g * da
             b1 = b - g * db
             c1 = c - g * dc
-            print(da)
-            err = self.rungekutta4(a1, b1, c1)
+
+            err = self.rungekutta4(a, b, c)
+
             if err < min_err:
                 min_err = err
                 a = a1
                 b = b1
                 c = c1
-                print('iter: #', i + 1, 'err', err)
-                print('Pr: ', a, '   Pvr: ', b, '   Pv_phi: ', c)
             else:
-                h = err/100
-                g*=0.1
-                print('Step Division')
+                g*=0.5
+
+
+
+            print('iter: #', i + 1, 'err', err)
+            print('Pr: ', a, '   Pvr: ', b, '   Pv_phi: ', c)
+
 
 
     def rungekutta4(self, a, b, c):
 
-        args = np.array([elem for elem in self.vars] , dtype=np.float64)
+        args = np.array([elem for elem in self.vars])
         args[5] = a
         args[6] = b
         args[7] = c
-        r = list()
-        angle = list()
-        t_list = list()
-        vr_list = list()
+
 
         time = 0
-        k = np.zeros((9, 4), dtype=np.float64)
+        k = np.zeros((9, 4))
 
-
-
+        r = list()
+        p = list()
+        tl = list()
+        ul = list()
+        u2 = list()
         #7099.125838682138
-        while time < 8000:
+        while time < 100:
 
 
-
-            h = 2*np.pi/100
-            t_list.append(time)
-            vr_list.append(args[3])
             r.append(args[0])
-            angle.append(args[1])
+            p.append(args[1])
+            tl.append(time)
+            ul.append(self.foo)
+            u2.append(self.fee)
+            h = 2*np.pi/100
+
 
             k[:, 0] = self.diffs(args)
             k[:, 1] = self.diffs(args + k[:, 0] * h / 2) * 2
@@ -104,12 +111,12 @@ class calcs_class():
 
 
 
-        err = args[4] + (self.r_k-args[0])**2 #+ args[2]**2 + (np.sqrt(1/args[0])-args[3])**2
+        err = (self.r_k-args[0])**2+(args[3]-1/np.sign(self.r_k))**2+args[2]**2+args[4]
+        self.err = err
 
 
-
+        #return p,r,tl,ul,u2
         return err
-
 
     def diffs(self, args):
         r_ = args[0]
@@ -124,18 +131,30 @@ class calcs_class():
 
         flag = pm_/6.8 + pvp_/(1-m_)
 
+
+
+        self.foo = (flag > 0)
         acc = self.acc*(flag > 0)
+
+        biba = pvp_/np.sign(pvp_**2+pvr_**2)
+        boba = pvr_ / np.sign(pvp_ ** 2 + pvr_ ** 2)
+
+        self.fee=180*np.arccos(boba)/np.pi-90
 
         dr = vr_
         dp = vp_/r_
-        dVr = vp_**2 / r_ - 1 / r_**2
-        dVp = -(vr_*vp_)/r_+acc/(1-m_)
+        dVr = vp_**2 / r_ - 1 / r_**2 + boba*acc/(1-m_)
+        dVp = -(vr_*vp_)/r_+biba*acc/(1-m_)
         dm = acc/6.8
+
+
+
 
         dPm = -acc*pvp_/(1-m_)**2
         dPvp = -(2*pvr_*vp_)/r_ + (pvp_*vr_)/r_
         dPvr = pvp_*vp_/r_-pr_
         dPr = -(pvp_*vr_*vp_)/pow(r_,2)-pvr_*(2/pow(r_,3)-pow(vp_,2)/pow(r_,2))
+
 
 
 

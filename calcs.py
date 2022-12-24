@@ -23,13 +23,13 @@ class calcs_class():
 
         self.err = 0
     def fit(self):
-        a = 92.3299923511243
-        b = 17.4976861851753
-        c = -47.978397734728915
+        a = 10.665758964863738
+        b = 5.568361217327801
+        c = -2.4881216942867734
 
 
 
-        h = 1e-12
+        h = 1e-4
         g = 1e+2
 
         print('fit')
@@ -84,10 +84,10 @@ class calcs_class():
 
 
 
-        while time < 1000:
+        while err > 0.001:
 
             if time > 300:
-                self.acc = 0
+                break
 
 
 
@@ -111,7 +111,7 @@ class calcs_class():
             dvars = np.array([sum(elem) for elem in k])
 
             args += dvars
-            err = (self.r_k - args[0]) ** 2  +  (args[3] - 1 / np.sqrt(self.r_k)) ** 2 + args[2] ** 2
+            err = (self.r_k - args[0]) ** 2  +  10*(args[3] - 1 / np.sqrt(self.r_k)) ** 2 + args[2] ** 2
 
             time += h
 
@@ -121,8 +121,8 @@ class calcs_class():
 
 
 
-        return p,r,tl,ul,u2
-        #return err
+        #return p,r,tl,ul,u2
+        return err
 
     def diffs(self, args):
         r_ = args[0]

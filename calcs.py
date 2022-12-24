@@ -5,7 +5,7 @@ class calcs_class():
         self.r_k = 42164 / (6371 + 200)
         self.acc = acc
 
-
+        print(self.r_k)
         self.mu = 398600.4415 * (10 ** 9)
 
         self.vars = np.zeros(9)
@@ -23,16 +23,14 @@ class calcs_class():
 
         self.err = 0
     def fit(self):
-        a = -17.725650336335367
-        b = -19.435330862104223
-        c = 22.42872260036432
+        a = 92.3299923511243
+        b = 17.4976861851753
+        c = -47.978397734728915
 
-        v1 = 0
-        v2 = 0
-        v3 = 0
 
-        h = 1e-9
-        g = 1e-3
+
+        h = 1e-12
+        g = 1e+2
 
         print('fit')
         min_err = 30
@@ -48,9 +46,7 @@ class calcs_class():
 
 
 
-            v1 = 0.9*v1 + g * da
-            v2 = 0.9*v2 + g * db
-            v3 = 0.9*v3 + g * dc
+
 
             a -= g * da
             b -= g * db
@@ -73,7 +69,7 @@ class calcs_class():
         args[5] = a
         args[6] = b
         args[7] = c
-        err = 3
+
 
         time = 0
         k = np.zeros((9, 4))
@@ -83,19 +79,24 @@ class calcs_class():
         tl = list()
         ul = list()
         u2 = list()
-        self.r_k = 2.5
 
-        while err > 0.01:
 
-            if time > 1000:
-                break
+
+
+
+        while time < 1000:
+
+            if time > 300:
+                self.acc = 0
+
+
 
             r.append(args[0])
             p.append(args[1])
             tl.append(time)
             ul.append(self.foo)
             u2.append(self.fee)
-            h = 2*np.pi/100
+            h = 2*np.pi/50
 
 
             k[:, 0] = self.diffs(args)
@@ -110,18 +111,18 @@ class calcs_class():
             dvars = np.array([sum(elem) for elem in k])
 
             args += dvars
-            err = (self.r_k - args[0]) ** 2  +  (args[3] - 1 / np.sign(self.r_k)) ** 2 + args[2] ** 2
+            err = (self.r_k - args[0]) ** 2  +  (args[3] - 1 / np.sqrt(self.r_k)) ** 2 + args[2] ** 2
 
             time += h
 
 
 
+        #print('time: ',time)
 
-        self.err = err
 
 
-        #return p,r,tl,ul,u2
-        return err
+        return p,r,tl,ul,u2
+        #return err
 
     def diffs(self, args):
         r_ = args[0]
@@ -141,15 +142,16 @@ class calcs_class():
         self.foo = (flag > 0)
         acc = self.acc*(flag > 0)
 
-        biba = pvp_/np.sign(pvp_**2+pvr_**2)
-        boba = pvr_ / np.sign(pvp_ ** 2 + pvr_ ** 2)
+        lam = np.arccos(pvr_/np.sqrt(pvp_**2+pvr_**2))
 
-        self.fee=180*np.arccos(boba)/np.pi-90
+
+
+        self.fee=180*lam/np.pi-90
 
         dr = vr_
         dp = vp_/r_
-        dVr = vp_**2 / r_ - 1 / r_**2 + boba*acc/(1-m_)
-        dVp = -(vr_*vp_)/r_+biba*acc/(1-m_)
+        dVr = vp_**2 / r_ - 1 / r_**2 + np.cos(lam)*acc/(1-m_)
+        dVp = -(vr_*vp_)/r_+np.sin(lam)*acc/(1-m_)
         dm = acc/6.8
 
 

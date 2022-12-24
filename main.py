@@ -9,21 +9,26 @@ mu = 398600.4415 * (10 ** 9)
 
 acc = 0.0000812431
 
-
+acc = 0.01
 
 calcs = calcs_class(acc)
 
 
-a =  1
-b =  4
-c = 1
+a = -17.725650336335367
+b = -19.435330862104223
+c = 22.42872260036432
 
 calcs.fit()
 
 
+'''
+p,r,tl,ul,u2= calcs.rungekutta4(0.5,0.707,0.707)
 
-#p, r = calcs.rungekutta4(a,b,c)
+plt.polar(p,r)
+plt.show()
 
-#plt.polar(p,r)
-#plt.show()
-
+plt.plot(tl,ul)
+plt.show()
+plt.plot(tl,u2)
+plt.show()
+'''

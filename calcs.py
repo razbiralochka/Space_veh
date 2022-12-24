@@ -23,14 +23,17 @@ class calcs_class():
 
         self.err = 0
     def fit(self):
-        a = 1.8603184779897084
-        b = 1.1496964378988284
-        c = 0.8310724166226334
+        a = -17.725650336335367
+        b = -19.435330862104223
+        c = 22.42872260036432
 
-
+        v1 = 0
+        v2 = 0
+        v3 = 0
 
         h = 1e-9
-        g = 5e-4
+        g = 1e-3
+
         print('fit')
         min_err = 30
         for i in range(10000):
@@ -45,19 +48,17 @@ class calcs_class():
 
 
 
-            a1 = a - g * da
-            b1 = b - g * db
-            c1 = c - g * dc
+            v1 = 0.9*v1 + g * da
+            v2 = 0.9*v2 + g * db
+            v3 = 0.9*v3 + g * dc
+
+            a -= g * da
+            b -= g * db
+            c -= g * dc
 
             err = self.rungekutta4(a, b, c)
 
-            if err < min_err:
-                min_err = err
-                a = a1
-                b = b1
-                c = c1
-            else:
-                g*=0.5
+
 
 
 
@@ -72,19 +73,22 @@ class calcs_class():
         args[5] = a
         args[6] = b
         args[7] = c
-
+        err = 3
 
         time = 0
         k = np.zeros((9, 4))
-
+        err = 100
         r = list()
         p = list()
         tl = list()
         ul = list()
         u2 = list()
-        #7099.125838682138
-        while time < 100:
+        self.r_k = 2.5
 
+        while err > 0.01:
+
+            if time > 1000:
+                break
 
             r.append(args[0])
             p.append(args[1])
@@ -106,12 +110,13 @@ class calcs_class():
             dvars = np.array([sum(elem) for elem in k])
 
             args += dvars
+            err = (self.r_k - args[0]) ** 2  +  (args[3] - 1 / np.sign(self.r_k)) ** 2 + args[2] ** 2
 
             time += h
 
 
 
-        err = (self.r_k-args[0])**2+(args[3]-1/np.sign(self.r_k))**2+args[2]**2+args[4]
+
         self.err = err
 
 

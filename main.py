@@ -1,23 +1,22 @@
-
 from calcs import calcs_class
 import matplotlib.pyplot as plt
-
+import numpy as np
 r0 = 6571000
 mu = 398600.4415 * (10 ** 9)
 
 
 acc = 0.0000812431
 
-acc = 0.002
+acc = 0.001
+
 
 calcs = calcs_class(acc)
 
+a = 0.7679795584737021
+b = 6.158863809703441
+c = 0.362137618385292
 
-a = 10.665758964863738
-b = 5.568361217327801
-c = -2.4881216942867734
-
-calcs.fit()
+#calcs.fit()
 
 
 
@@ -26,7 +25,12 @@ p,r,tl,ul,u2= calcs.rungekutta4(a,b,c)
 plt.polar(p,r)
 plt.show()
 
-plt.plot(tl,ul)
+
+n = [0.5*elem/np.pi for elem in p]
+
+plt.plot(n,r)
+plt.plot(n,ul)
+plt.grid()
 plt.show()
-plt.plot(tl,u2)
+plt.plot(n,u2)
 plt.show()

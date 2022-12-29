@@ -12,24 +12,21 @@ acc = 0.001
 
 calcs = calcs_class(acc)
 
-a = 0.7679795584737021
-b = 6.158863809703441
-c = 0.362137618385292
+a = 100
+b = 1
+c = 1
 
 #calcs.fit()
-
-
 
 p,r,tl,ul,u2= calcs.rungekutta4(a,b,c)
 
 plt.polar(p,r)
 plt.show()
 
-
 n = [0.5*elem/np.pi for elem in p]
 
-plt.plot(n,r)
-plt.plot(n,ul)
+plt.plot(n, r)
+plt.plot(n, ul)
 plt.grid()
 plt.show()
 plt.plot(n,u2)
